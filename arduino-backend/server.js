@@ -17,18 +17,19 @@ app.use(cors({
     origin: 'http://localhost:5173'  // Allow your frontend origin
 }));
 
-const useMockData = false;  // Change to false when using Arduino
+const useMockData = true;  // Change to false when using Arduino
 
 if (useMockData) {
     function generateMockData() {
         const mockData = {
-            Temp_ambiente: Math.floor(Math.random() * 10) + 20,
+            Temp_Ambiente: Math.floor(Math.random() * 10) + 20,
             Humedad: Math.floor(Math.random() * 10) + 30,
-            Corporal: Math.floor(Math.random() * 5) + 10,
-            BPM: Math.floor(Math.random() * 40) + 60,
+            Corporal: Math.floor(Math.random() * (39 - 34)) + 34,
+            BMP: Math.floor(Math.random() * 40) + 60,
             SpO2: Math.floor(Math.random() * 10) + 70,
             Angulo_superior: Math.floor(Math.random() * 360),
             Angulo_inferior: Math.floor(Math.random() * 360),
+            Iluminacion: Math.floor(Math.random() * 30) + 100,
         };
         return mockData;
     }
@@ -37,12 +38,12 @@ if (useMockData) {
         const data = generateMockData();
         console.log('Emitting mock data:', JSON.stringify(data));
         io.emit('serialData', JSON.stringify(data));
-    }, 3000);
+    }, 2000);
 } else {
     const { SerialPort } = require('serialport');
     const { ReadlineParser } = require('@serialport/parser-readline');
 
-    const port = new SerialPort({ path: '/dev/ttyS0', baudRate: 115200 });
+    const port = new SerialPort({ path: '/dev/ttyUSB0', baudRate: 115200 });
     const parser = port.pipe(new ReadlineParser({ delimiter: '\n' }));
 
     port.on('open', () => {
