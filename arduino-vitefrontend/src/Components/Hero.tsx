@@ -25,6 +25,7 @@ const variables: Variable[] = [
 const socket = io('http://localhost:3000');
 
 export default function Hero() {
+    const maxDataPoints = 20; // maximum data points to display
     const [data, setData] = useState<{ data: SensorData; timestamp: number }[]>([]);
     const [labels, setLabels] = useState<string[]>([]);
     const [selectedVariable, setSelectedVariable] = useState<keyof SensorData | ''>('');
@@ -36,8 +37,8 @@ export default function Hero() {
         socket.on('serialData', (incomingData) => {
             const parsedData: SensorData = JSON.parse(incomingData);
             const timestamp = Date.now();
-            setData(prevData => [...prevData, { data: parsedData, timestamp }]);
-            setLabels(prevLabels => [...prevLabels, new Date().toLocaleTimeString()]);
+            setData(prevData => [...prevData.slice(-(maxDataPoints - 1)), { data: parsedData, timestamp }]);
+            setLabels(prevLabels => [...prevLabels.slice(-(maxDataPoints - 1)), new Date().toLocaleTimeString()]);
         });
 
         return () => {
@@ -147,7 +148,7 @@ export default function Hero() {
                         </span>
                     )}
                 </div>
-                <div className='w-full h-full'>
+                <div className='h-full'>
                     <ChartComponent data={data.map(d => d.data)} labels={labels} selectedVariable={selectedVariable}/>
                 </div>
             </div>
